@@ -3,8 +3,13 @@ const contextText = document.querySelector("#context-text");
 const clueList = document.querySelector("#clue-list");
 const slots = Array.from(document.querySelectorAll(".slot"));
 const combineButton = document.querySelector("#combine-button");
+const lock = document.querySelector("#lock");
+const drawer = document.querySelector("#drawer");
+const drawerLabel = document.querySelector("#drawer-label");
+const successMessage = document.querySelector("#success-message");
 const inventory = [];
 let selectedSlot = null;
+let isSolved = false;
 
 function updateContext(title, text) {
   contextTitle.textContent = title;
@@ -29,6 +34,25 @@ function renderInventory() {
   });
 }
 
+function clearSelection() {
+  selectedSlot = null;
+  slots.forEach((slot) => slot.classList.remove("selected"));
+}
+
+function solvePuzzle() {
+  isSolved = true;
+  lock.classList.add("open");
+  drawer.classList.add("open");
+  successMessage.classList.add("visible");
+  drawerLabel.textContent = "Gaveta aberta";
+  clearSelection();
+  addClue("A ferramenta improvisada abriu o cadeado.");
+  updateContext(
+    "Gaveta aberta",
+    "O cadeado cede com um clique seco. A gaveta desliza alguns centímetros, revelando que a solução funcionou."
+  );
+}
+
 document.querySelectorAll(".item").forEach((button) => {
   button.addEventListener("click", () => {
     const item = button.dataset.item;
@@ -44,9 +68,19 @@ document.querySelectorAll(".item").forEach((button) => {
   });
 });
 
-document.querySelector(".lock").addEventListener("click", (event) => {
+lock.addEventListener("click", (event) => {
+  if (isSolved) {
+    updateContext("Cadeado aberto", "O cadeado já está aberto. A gaveta pode ser investigada.");
+    return;
+  }
+
+  if (selectedSlot === "Ferramenta improvisada") {
+    solvePuzzle();
+    return;
+  }
+
   updateContext("Cadeado", event.currentTarget.dataset.description);
-  addClue("Talvez uma peça fina e uma empunhadura improvisada ajudem.");
+  addClue("Selecione uma ferramenta no inventário antes de tentar o cadeado.");
 });
 
 slots.forEach((slot) => {
@@ -58,7 +92,7 @@ slots.forEach((slot) => {
     slots.forEach((item) => item.classList.remove("selected"));
     slot.classList.add("selected");
     selectedSlot = slot.textContent;
-    updateContext(selectedSlot, `Item selecionado: ${selectedSlot}.`);
+    updateContext(selectedSlot, `Item selecionado: ${selectedSlot}. Clique em algo no cenário para tentar usar.`);
   });
 });
 
