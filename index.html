@@ -3,27 +3,121 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Survivor Box Games</title>
+    <title>Survivor Box - Protótipo</title>
     <link rel="stylesheet" href="src/styles.css" />
   </head>
   <body>
-    <main class="shell">
-      <section class="intro" aria-labelledby="page-title">
-        <p class="eyebrow">Jogos de browser</p>
-        <h1 id="page-title">Survivor Box Games</h1>
-        <p>
-          Um espaco para prototipar jogos pequenos, publicar no browser e
-          evoluir ideias jogaveis com rapidez.
-        </p>
+    <main class="game-shell" aria-label="Tela de jogo">
+      <header class="top-bar">
+        <div>
+          <p class="eyebrow">Protótipo 01</p>
+          <h1>Survivor Box</h1>
+        </div>
+        <div class="objective">
+          <span>Objetivo</span>
+          <strong>Abrir o cadeado da gaveta</strong>
+        </div>
+      </header>
+
+      <section class="play-layout">
+        <aside class="context-panel" aria-labelledby="context-title">
+          <div class="panel-header">
+            <p class="eyebrow">Contexto</p>
+            <h2 id="context-title">Mesa de escritório</h2>
+          </div>
+          <p id="context-text">
+            Uma mesa comum, mas cheia de possibilidades. A gaveta está presa
+            por um cadeado simples, e quase tudo sobre a mesa pode ser útil se
+            for observado com calma.
+          </p>
+          <div class="notes">
+            <h3>Pistas</h3>
+            <ul id="clue-list">
+              <li>Clique nos objetos para examinar e coletar.</li>
+              <li>Alguns itens podem mudar de função quando combinados.</li>
+            </ul>
+          </div>
+        </aside>
+
+        <section class="scene" aria-label="Cenário interativo">
+          <div class="wall">
+            <div class="notice-board">
+              <span>Plantão</span>
+              <span>Manutenção</span>
+              <span>Arquivo</span>
+            </div>
+          </div>
+
+          <div class="desk" aria-label="Mesa de escritório">
+            <button
+              class="hotspot item paperclip"
+              type="button"
+              data-item="Clipe"
+              data-description="Um clipe de metal. Fino, flexível e fácil de desdobrar com as mãos."
+            >
+              Clipe
+            </button>
+            <button
+              class="hotspot item pen"
+              type="button"
+              data-item="Caneta"
+              data-description="Uma caneta esferográfica. O corpo parece firme, e talvez esconda peças úteis por dentro."
+            >
+              Caneta
+            </button>
+            <button
+              class="hotspot item tape"
+              type="button"
+              data-item="Fita"
+              data-description="Um rolo pequeno de fita adesiva. Não resolve tudo, mas segura quase qualquer improviso por tempo suficiente."
+            >
+              Fita
+            </button>
+            <button
+              class="hotspot item ruler"
+              type="button"
+              data-item="Régua"
+              data-description="Uma régua fina de plástico. Boa para medir, apoiar ou alcançar uma fresta estreita."
+            >
+              Régua
+            </button>
+            <button
+              class="hotspot lock"
+              type="button"
+              data-description="O cadeado prende a gaveta. A abertura é pequena, e força bruta só faria barulho."
+            >
+              Cadeado
+            </button>
+            <div class="drawer">
+              <span>Gaveta trancada</span>
+            </div>
+          </div>
+        </section>
       </section>
 
-      <section class="games" aria-labelledby="games-title">
-        <h2 id="games-title">Jogos</h2>
-        <div class="empty-state">
-          <p>O primeiro jogo entra aqui.</p>
+      <section class="inventory" aria-labelledby="inventory-title">
+        <div class="inventory-head">
+          <div>
+            <p class="eyebrow">Inventário</p>
+            <h2 id="inventory-title">Itens coletados</h2>
+          </div>
+          <button class="action-button" type="button" id="combine-button">
+            Combinar itens
+          </button>
+        </div>
+        <div class="slots" id="inventory-slots" aria-live="polite">
+          <button class="slot" type="button">Vazio</button>
+          <button class="slot" type="button">Vazio</button>
+          <button class="slot" type="button">Vazio</button>
+          <button class="slot" type="button">Vazio</button>
+          <button class="slot" type="button">Vazio</button>
+          <button class="slot" type="button">Vazio</button>
+          <button class="slot" type="button">Vazio</button>
+          <button class="slot" type="button">Vazio</button>
         </div>
       </section>
     </main>
+
+    <script src="src/game.js"></script>
   </body>
 </html>
-
