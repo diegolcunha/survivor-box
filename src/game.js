@@ -3,6 +3,7 @@ const contextText = document.querySelector("#context-text");
 const clueList = document.querySelector("#clue-list");
 const slots = Array.from(document.querySelectorAll(".slot"));
 const combineButton = document.querySelector("#combine-button");
+const combineInstruction = document.querySelector("#combine-instruction");
 const combineOkButton = document.querySelector("#combine-ok-button");
 const cursorHint = document.querySelector("#cursor-hint");
 const lock = document.querySelector("#lock");
@@ -47,6 +48,13 @@ function clearSelection() {
 function updateCombineControls() {
   document.body.classList.toggle("combine-mode", isCombineMode);
   combineButton.classList.toggle("active", isCombineMode);
+  combineButton.textContent = isCombineMode ? "Cancelar" : "Combinar itens";
+  combineInstruction.hidden = !isCombineMode;
+  combineInstruction.classList.toggle("ready", combineSelection.length === 2);
+  combineInstruction.textContent =
+    combineSelection.length === 2
+      ? `Selecionados: ${combineSelection.join(" + ")}`
+      : "Clique nos itens para combinar";
   combineOkButton.hidden = !isCombineMode;
   combineOkButton.disabled = combineSelection.length !== 2;
   cursorHint.classList.toggle("visible", isCombineMode);
@@ -70,7 +78,7 @@ function toggleCombineItem(item) {
   updateContext(
     "Combinar itens",
     combineSelection.length
-      ? `Selecionado: ${combineSelection.join(" + ")}.`
+      ? `Selecionado: ${combineSelection.join(" + ")}. Clique em OK para confirmar quando tiver dois itens.`
       : "Clique em dois itens do inventário para tentar uma combinação."
   );
 }
