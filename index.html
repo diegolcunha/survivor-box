@@ -18,7 +18,7 @@
             <span>Objetivo</span>
             <strong>Abrir o cadeado da gaveta</strong>
           </div>
-          <span class="version-label" aria-label="Versão do jogo">SB 1.04</span>
+          <span class="version-label" aria-label="Versão do jogo">SB 1.05</span>
         </div>
       </header>
 
@@ -108,9 +108,14 @@
             <p class="eyebrow">Inventário</p>
             <h2 id="inventory-title">Itens coletados</h2>
           </div>
-          <button class="action-button" type="button" id="combine-button">
-            Combinar itens
-          </button>
+          <div class="combine-controls">
+            <button class="action-button" type="button" id="combine-button">
+              Combinar itens
+            </button>
+            <button class="ok-button" type="button" id="combine-ok-button" hidden>
+              OK
+            </button>
+          </div>
         </div>
         <div class="slots" id="inventory-slots" aria-live="polite">
           <button class="slot" type="button">Vazio</button>
@@ -125,6 +130,9 @@
       </section>
     </main>
 
+    <div class="cursor-hint" id="cursor-hint" aria-hidden="true">
+      Clique nos itens para combinar
+    </div>
     <script src="src/game.js"></script>
   </body>
 </html>
