@@ -376,6 +376,11 @@ li {
   box-shadow: 0 0 0 3px rgba(242, 193, 78, 0.22);
 }
 
+.item.drag-source {
+  opacity: 0.92;
+  box-shadow: 0 0 0 3px rgba(242, 193, 78, 0.22);
+}
+
 .lock {
   left: calc(50% - 38px);
   bottom: 108px;

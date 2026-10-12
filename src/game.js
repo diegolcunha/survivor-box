@@ -180,7 +180,7 @@ function moveDragGhost(x, y) {
 }
 
 function moveDraggedSceneItem(x, y) {
-  if (!dragState?.sourceElement?.classList.contains("dropped-item")) {
+  if (dragState?.source !== "scene") {
     return;
   }
 
@@ -349,7 +349,7 @@ function updateDrag(event) {
 
   if (!dragState.isDragging && distance > 6) {
     dragState.isDragging = true;
-    if (!dragState.sourceElement.classList.contains("dropped-item")) {
+    if (dragState.source !== "scene") {
       dragState.ghost = createDragGhost(dragState.item);
     }
     dragState.sourceElement.classList.add("drag-source");
@@ -393,7 +393,7 @@ function finishDrag() {
   }
 
   if (wasDragging && dragState.source === "scene") {
-    if (dragState.sourceElement.classList.contains("dropped-item") && isToolOverLock()) {
+    if (isToolOverLock()) {
       solvePuzzle();
       resetDrag();
       return true;
@@ -402,10 +402,7 @@ function finishDrag() {
     if (isPointInsideElement(dragState.currentX, dragState.currentY, inventoryPanel)) {
       collectItem(dragState.item);
       updateContext(dragState.item, `${dragState.item} foi guardado no inventário.`);
-    } else if (
-      dragState.sourceElement.classList.contains("dropped-item") &&
-      isPointInsideElement(dragState.currentX, dragState.currentY, desk)
-    ) {
+    } else if (isPointInsideElement(dragState.currentX, dragState.currentY, desk)) {
       placeSceneItemOnDesk(dragState.sourceElement, dragState.currentX, dragState.currentY);
       updateContext(dragState.item, `${dragState.item} reposicionado sobre a mesa.`);
     } else {
