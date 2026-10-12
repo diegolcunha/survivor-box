@@ -526,7 +526,8 @@ li {
   border-color: var(--accent);
 }
 
-.cursor-hint {
+.cursor-hint,
+.action-hint {
   position: fixed;
   left: 0;
   top: 0;
@@ -541,6 +542,12 @@ li {
   font-weight: 900;
   transform: translate(14px, 16px);
   white-space: nowrap;
+}
+
+.action-hint {
+  border-color: #8d7450;
+  background: rgba(28, 25, 21, 0.96);
+  color: #e8d8bc;
 }
 
 .inventory-items {
@@ -601,7 +608,8 @@ li {
   font-size: 1rem;
 }
 
-.cursor-hint.visible {
+.cursor-hint.visible,
+.action-hint.visible {
   display: block;
 }
 

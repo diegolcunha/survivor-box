@@ -6,6 +6,7 @@ const combineButton = document.querySelector("#combine-button");
 const combineInstruction = document.querySelector("#combine-instruction");
 const combineOkButton = document.querySelector("#combine-ok-button");
 const cursorHint = document.querySelector("#cursor-hint");
+const actionHint = document.querySelector("#action-hint");
 const inventoryPanel = document.querySelector(".inventory");
 const scene = document.querySelector(".scene");
 const desk = document.querySelector(".desk");
@@ -29,6 +30,8 @@ let combineTargets = [];
 let isSolved = false;
 let dragState = null;
 let suppressNextClick = false;
+let improvisedItemCount = 0;
+let actionHintTimer = null;
 
 function updateContext(title, text) {
   contextTitle.textContent = title;
@@ -131,38 +134,50 @@ function toggleCombineItem(item, source, element) {
     "Combinar itens",
     combineSelection.length
       ? `Selecionado: ${combineSelection.join(" + ")}. Clique em OK para confirmar quando tiver dois itens.`
-      : "Clique em dois itens do inventário para tentar uma combinação."
+      : "Clique em dois itens do inventário ou da mesa para tentar uma combinação."
   );
 }
 
 function combineSelectedItems() {
   const selected = [...combineSelection].sort().join("+");
+  const sourceItemsLabel = combineSelection.join(" + ");
   const hasTool = inventory.includes("Ferramenta improvisada") || sceneItems.has("Ferramenta improvisada");
+  const resultItem =
+    selected === "Caneta+Clipe" && !hasTool
+      ? "Ferramenta improvisada"
+      : createImprovisedItemName();
+  const resultPosition = getCombinationResultPosition();
 
-  if (selected === "Caneta+Clipe" && !hasTool) {
-    const resultPosition = getCombinationResultPosition();
-    consumeSelectedTargets();
-    clearSelection();
-    if (resultPosition) {
-      createDeskItem("Ferramenta improvisada", resultPosition.x, resultPosition.y);
-    } else {
-      inventory.push("Ferramenta improvisada");
-    }
+  consumeSelectedTargets();
+  clearSelection();
+
+  if (resultPosition) {
+    createDeskItem(resultItem, resultPosition.x, resultPosition.y);
+  } else {
+    inventory.push(resultItem);
+  }
+
+  if (resultItem === "Ferramenta improvisada") {
     addClue("Clipe e caneta foram consumidos para criar uma ferramenta improvisada.");
     updateContext(
       "Ferramenta improvisada",
       "O clipe desdobrado ganha apoio no corpo da caneta. Não é elegante, mas parece funcional."
     );
-    exitCombineMode();
-    renderInventory();
-    return;
+  } else {
+    addClue(`${sourceItemsLabel} viraram ${resultItem}.`);
+    updateContext(
+      resultItem,
+      "Os itens foram combinados em uma engenhoca improvisada. Ainda não está claro se ela resolve algo."
+    );
   }
 
-  updateContext(
-    "Combinação",
-    "Nada se encaixa de um jeito útil ainda. Observe o formato e a função dos itens."
-  );
   exitCombineMode();
+  renderInventory();
+}
+
+function createImprovisedItemName() {
+  improvisedItemCount += 1;
+  return `Engenhoca ${improvisedItemCount}`;
 }
 
 function getCombinationResultPosition() {
@@ -227,6 +242,22 @@ function isToolOverLock() {
     !isSolved &&
     isPointInsideElement(dragState.currentX, dragState.currentY, lock)
   );
+}
+
+function isAnyItemOverLock() {
+  return !isSolved && isPointInsideElement(dragState.currentX, dragState.currentY, lock);
+}
+
+function showActionHint(text, x, y) {
+  actionHint.textContent = text;
+  actionHint.style.left = `${x}px`;
+  actionHint.style.top = `${y}px`;
+  actionHint.classList.add("visible");
+
+  window.clearTimeout(actionHintTimer);
+  actionHintTimer = window.setTimeout(() => {
+    actionHint.classList.remove("visible");
+  }, 1400);
 }
 
 function createDragGhost(label) {
@@ -476,6 +507,13 @@ function finishDrag() {
       return true;
     }
 
+    if (isAnyItemOverLock()) {
+      showActionHint("A ferramenta parece não ter efeito.", dragState.currentX, dragState.currentY);
+      updateContext(dragState.item, "A tentativa não altera o cadeado. Talvez este item não seja a ferramenta certa.");
+      resetDrag();
+      return true;
+    }
+
     if (isPointInsideElement(dragState.currentX, dragState.currentY, inventoryPanel)) {
       collectItem(dragState.item);
       updateContext(dragState.item, `${dragState.item} foi guardado no inventário.`);
@@ -490,6 +528,13 @@ function finishDrag() {
   if (wasDragging && dragState.source === "inventory") {
     if (isToolOverLock()) {
       solvePuzzle();
+      resetDrag();
+      return true;
+    }
+
+    if (isAnyItemOverLock()) {
+      showActionHint("A ferramenta parece não ter efeito.", dragState.currentX, dragState.currentY);
+      updateContext(dragState.item, "A tentativa não altera o cadeado. Talvez este item não seja a ferramenta certa.");
       resetDrag();
       return true;
     }
@@ -571,7 +616,7 @@ combineButton.addEventListener("click", () => {
   isCombineMode = true;
   combineSelection = [];
   updateCombineControls();
-  updateContext("Combinar itens", "Clique em dois itens do inventário para tentar uma combinação.");
+  updateContext("Combinar itens", "Clique em dois itens do inventário ou da mesa para tentar uma combinação.");
 });
 
 combineOkButton.addEventListener("click", () => {
