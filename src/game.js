@@ -179,6 +179,14 @@ function moveDragGhost(x, y) {
   dragState.ghost.style.top = `${y}px`;
 }
 
+function moveDraggedSceneItem(x, y) {
+  if (!dragState?.sourceElement?.classList.contains("dropped-item")) {
+    return;
+  }
+
+  placeSceneItemOnDesk(dragState.sourceElement, x, y);
+}
+
 function collectItem(item) {
   if (inventory.includes(item)) {
     return;
@@ -341,7 +349,9 @@ function updateDrag(event) {
 
   if (!dragState.isDragging && distance > 6) {
     dragState.isDragging = true;
-    dragState.ghost = createDragGhost(dragState.item);
+    if (!dragState.sourceElement.classList.contains("dropped-item")) {
+      dragState.ghost = createDragGhost(dragState.item);
+    }
     dragState.sourceElement.classList.add("drag-source");
     document.body.classList.add("dragging-item");
   }
@@ -351,6 +361,7 @@ function updateDrag(event) {
   }
 
   moveDragGhost(event.clientX, event.clientY);
+  moveDraggedSceneItem(event.clientX, event.clientY);
   inventoryPanel.classList.toggle(
     "drop-target",
     dragState.source === "scene" && isPointInsideElement(event.clientX, event.clientY, inventoryPanel)
