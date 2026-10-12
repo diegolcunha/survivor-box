@@ -382,6 +382,11 @@ li {
   transform-origin: bottom left;
 }
 
+.lock.use-target {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(115, 199, 162, 0.24);
+}
+
 .success-message {
   position: absolute;
   left: 50%;

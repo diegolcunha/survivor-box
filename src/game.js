@@ -204,6 +204,7 @@ function resetDrag() {
   dragState?.ghost?.remove();
   dragState?.sourceElement?.classList.remove("drag-source");
   inventoryPanel.classList.remove("drop-target");
+  lock.classList.remove("use-target");
   document.body.classList.remove("dragging-item");
   dragState = null;
 }
@@ -241,7 +242,7 @@ function handleInventoryItemClick(item, token) {
   inventoryItems.querySelectorAll(".inventory-token").forEach((tokenItem) => tokenItem.classList.remove("selected"));
   token.classList.add("selected");
   selectedSlot = item;
-  updateContext(selectedSlot, `Item selecionado: ${selectedSlot}. Clique em algo no cenário para tentar usar.`);
+  updateContext(selectedSlot, `Item selecionado: ${selectedSlot}. Arraste para o cenário para tentar usar.`);
 }
 
 function updateDrag(event) {
@@ -270,6 +271,13 @@ function updateDrag(event) {
     "drop-target",
     dragState.source === "scene" && isPointInsideElement(event.clientX, event.clientY, inventoryPanel)
   );
+  lock.classList.toggle(
+    "use-target",
+    dragState.source === "inventory" &&
+      dragState.item === "Ferramenta improvisada" &&
+      !isSolved &&
+      isPointInsideElement(event.clientX, event.clientY, lock)
+  );
 }
 
 function finishDrag() {
@@ -296,6 +304,16 @@ function finishDrag() {
   }
 
   if (wasDragging && dragState.source === "inventory") {
+    if (
+      dragState.item === "Ferramenta improvisada" &&
+      !isSolved &&
+      isPointInsideElement(dragState.currentX, dragState.currentY, lock)
+    ) {
+      solvePuzzle();
+      resetDrag();
+      return true;
+    }
+
     if (!isPointInsideElement(dragState.currentX, dragState.currentY, inventoryPanel)) {
       removeInventoryItem(dragState.item);
       updateContext(dragState.item, `${dragState.item} saiu do inventário.`);
@@ -349,13 +367,8 @@ lock.addEventListener("click", (event) => {
     return;
   }
 
-  if (selectedSlot === "Ferramenta improvisada") {
-    solvePuzzle();
-    return;
-  }
-
   updateContext("Cadeado", event.currentTarget.dataset.description);
-  addClue("Selecione uma ferramenta no inventário antes de tentar o cadeado.");
+  addClue("Arraste uma ferramenta do inventário até o cadeado para tentar usá-la.");
 });
 
 combineButton.addEventListener("click", () => {
