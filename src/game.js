@@ -263,6 +263,18 @@ function dropInventoryItemOnDesk(item, x, y) {
   updateContext(item, `${item} agora está sobre a mesa.`);
 }
 
+function placeSceneItemOnDesk(sceneItem, x, y) {
+  const deskRect = desk.getBoundingClientRect();
+  const itemRect = sceneItem.getBoundingClientRect();
+  const halfWidth = Math.max(itemRect.width / 2, 48);
+  const halfHeight = Math.max(itemRect.height / 2, 22);
+  const left = Math.min(Math.max(x - deskRect.left - halfWidth, 14), deskRect.width - itemRect.width - 14);
+  const top = Math.min(Math.max(y - deskRect.top - halfHeight, 16), deskRect.height - itemRect.height - 16);
+
+  sceneItem.style.left = `${left}px`;
+  sceneItem.style.top = `${top}px`;
+}
+
 function resetDrag() {
   dragState?.ghost?.remove();
   dragState?.sourceElement?.classList.remove("drag-source");
@@ -368,6 +380,12 @@ function finishDrag() {
     if (isPointInsideElement(dragState.currentX, dragState.currentY, inventoryPanel)) {
       collectItem(dragState.item);
       updateContext(dragState.item, `${dragState.item} foi guardado no inventário.`);
+    } else if (
+      dragState.sourceElement.classList.contains("dropped-item") &&
+      isPointInsideElement(dragState.currentX, dragState.currentY, desk)
+    ) {
+      placeSceneItemOnDesk(dragState.sourceElement, dragState.currentX, dragState.currentY);
+      updateContext(dragState.item, `${dragState.item} reposicionado sobre a mesa.`);
     } else {
       updateContext(dragState.item, "Arraste o item até o inventário para guardá-lo.");
     }
