@@ -25,6 +25,7 @@ const itemIcons = {
 let selectedSlot = null;
 let isCombineMode = false;
 let combineSelection = [];
+let combineTargets = [];
 let isSolved = false;
 let dragState = null;
 let suppressNextClick = false;
@@ -62,7 +63,10 @@ function renderInventory() {
     token.dataset.item = item;
     token.innerHTML = `<span class="token-icon">${itemIcons[item] || "•"}</span><span>${item}</span>`;
     token.classList.toggle("selected", selectedSlot === item);
-    token.classList.toggle("combine-selected", combineSelection.includes(item));
+    token.classList.toggle(
+      "combine-selected",
+      combineTargets.some((target) => target.source === "inventory" && target.item === item)
+    );
     token.addEventListener("pointerdown", (event) => startPotentialDrag(event, item, "inventory", token));
     token.addEventListener("click", () => handleInventoryItemClick(item, token));
     inventoryItems.appendChild(token);
@@ -87,22 +91,41 @@ function updateCombineControls() {
   combineOkButton.hidden = !isCombineMode;
   combineOkButton.disabled = combineSelection.length !== 2;
   cursorHint.classList.toggle("visible", isCombineMode);
+  refreshSceneCombineSelection();
   renderInventory();
 }
 
 function exitCombineMode() {
   isCombineMode = false;
   combineSelection = [];
+  combineTargets = [];
   updateCombineControls();
 }
 
-function toggleCombineItem(item) {
-  if (combineSelection.includes(item)) {
-    combineSelection = combineSelection.filter((selectedItem) => selectedItem !== item);
-  } else if (combineSelection.length < 2) {
-    combineSelection.push(item);
+function refreshSceneCombineSelection() {
+  document.querySelectorAll(".hotspot.combine-selected").forEach((item) => item.classList.remove("combine-selected"));
+  combineTargets.forEach((target) => {
+    if (target.source === "scene") {
+      target.element.classList.add("combine-selected");
+    }
+  });
+}
+
+function toggleCombineItem(item, source, element) {
+  const existingIndex = combineTargets.findIndex((target) =>
+    source === "inventory"
+      ? target.source === "inventory" && target.item === item
+      : target.element === element
+  );
+
+  if (existingIndex !== -1) {
+    combineTargets.splice(existingIndex, 1);
+  } else if (combineTargets.length < 2) {
+    combineTargets.push({ item, source, element });
   }
 
+  combineSelection = combineTargets.map((target) => target.item);
+  refreshSceneCombineSelection();
   updateCombineControls();
   updateContext(
     "Combinar itens",
@@ -114,11 +137,17 @@ function toggleCombineItem(item) {
 
 function combineSelectedItems() {
   const selected = [...combineSelection].sort().join("+");
+  const hasTool = inventory.includes("Ferramenta improvisada") || sceneItems.has("Ferramenta improvisada");
 
-  if (selected === "Caneta+Clipe" && !inventory.includes("Ferramenta improvisada")) {
-    consumeItems(["Caneta", "Clipe"]);
+  if (selected === "Caneta+Clipe" && !hasTool) {
+    const resultPosition = getCombinationResultPosition();
+    consumeSelectedTargets();
     clearSelection();
-    inventory.push("Ferramenta improvisada");
+    if (resultPosition) {
+      createDeskItem("Ferramenta improvisada", resultPosition.x, resultPosition.y);
+    } else {
+      inventory.push("Ferramenta improvisada");
+    }
     addClue("Clipe e caneta foram consumidos para criar uma ferramenta improvisada.");
     updateContext(
       "Ferramenta improvisada",
@@ -134,6 +163,45 @@ function combineSelectedItems() {
     "Nada se encaixa de um jeito útil ainda. Observe o formato e a função dos itens."
   );
   exitCombineMode();
+}
+
+function getCombinationResultPosition() {
+  const sceneTargets = combineTargets.filter((target) => target.source === "scene");
+
+  if (!sceneTargets.length) {
+    return null;
+  }
+
+  const centers = sceneTargets.map((target) => {
+    const rect = target.element.getBoundingClientRect();
+
+    return {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    };
+  });
+
+  return {
+    x: centers.reduce((sum, center) => sum + center.x, 0) / centers.length,
+    y: centers.reduce((sum, center) => sum + center.y, 0) / centers.length,
+  };
+}
+
+function consumeSelectedTargets() {
+  combineTargets.forEach((target) => {
+    if (target.source === "inventory") {
+      const itemIndex = inventory.indexOf(target.item);
+
+      if (itemIndex !== -1) {
+        inventory.splice(itemIndex, 1);
+      }
+    }
+
+    if (target.source === "scene") {
+      target.element.remove();
+      sceneItems.delete(target.item);
+    }
+  });
 }
 
 function consumeItems(items) {
@@ -250,6 +318,12 @@ function dropInventoryItemOnDesk(item, x, y) {
     return;
   }
 
+  createDeskItem(item, x, y);
+  addClue(`${item} colocado sobre a mesa.`);
+  updateContext(item, `${item} agora está sobre a mesa.`);
+}
+
+function createDeskItem(item, x, y) {
   const deskRect = desk.getBoundingClientRect();
   const left = Math.min(Math.max(x - deskRect.left, 34), deskRect.width - 98);
   const top = Math.min(Math.max(y - deskRect.top, 26), deskRect.height - 54);
@@ -270,13 +344,16 @@ function dropInventoryItemOnDesk(item, x, y) {
       return;
     }
 
+    if (isCombineMode) {
+      toggleCombineItem(item, "scene", droppedItem);
+      return;
+    }
+
     updateContext(item, droppedItem.dataset.description);
   });
 
   sceneItems.set(item, droppedItem);
   desk.appendChild(droppedItem);
-  addClue(`${item} colocado sobre a mesa.`);
-  updateContext(item, `${item} agora está sobre a mesa.`);
 }
 
 function placeSceneItemOnDesk(sceneItem, x, y) {
@@ -327,7 +404,7 @@ function handleInventoryItemClick(item, token) {
   }
 
   if (isCombineMode) {
-    toggleCombineItem(item);
+    toggleCombineItem(item, "inventory", token);
     return;
   }
 
@@ -463,6 +540,11 @@ document.querySelectorAll(".item").forEach((button) => {
     }
 
     const item = button.dataset.item;
+
+    if (isCombineMode) {
+      toggleCombineItem(item, "scene", button);
+      return;
+    }
 
     updateContext(item, button.dataset.description);
   });

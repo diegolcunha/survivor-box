@@ -381,6 +381,11 @@ li {
   box-shadow: 0 0 0 3px rgba(242, 193, 78, 0.22);
 }
 
+.hotspot.combine-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(115, 199, 162, 0.3);
+}
+
 .lock {
   left: calc(50% - 38px);
   bottom: 108px;
