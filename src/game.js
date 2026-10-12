@@ -153,6 +153,14 @@ function isPointInsideElement(x, y, element) {
   return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
 }
 
+function isToolOverLock() {
+  return (
+    dragState?.item === "Ferramenta improvisada" &&
+    !isSolved &&
+    isPointInsideElement(dragState.currentX, dragState.currentY, lock)
+  );
+}
+
 function createDragGhost(label) {
   const ghost = document.createElement("div");
   ghost.className = "drag-ghost";
@@ -349,10 +357,7 @@ function updateDrag(event) {
   );
   lock.classList.toggle(
     "use-target",
-    dragState.source === "inventory" &&
-      dragState.item === "Ferramenta improvisada" &&
-      !isSolved &&
-      isPointInsideElement(event.clientX, event.clientY, lock)
+    (dragState.source === "inventory" || dragState.sourceElement.classList.contains("dropped-item")) && isToolOverLock()
   );
   desk.classList.toggle(
     "drop-target",
@@ -377,6 +382,12 @@ function finishDrag() {
   }
 
   if (wasDragging && dragState.source === "scene") {
+    if (dragState.sourceElement.classList.contains("dropped-item") && isToolOverLock()) {
+      solvePuzzle();
+      resetDrag();
+      return true;
+    }
+
     if (isPointInsideElement(dragState.currentX, dragState.currentY, inventoryPanel)) {
       collectItem(dragState.item);
       updateContext(dragState.item, `${dragState.item} foi guardado no inventário.`);
@@ -392,11 +403,7 @@ function finishDrag() {
   }
 
   if (wasDragging && dragState.source === "inventory") {
-    if (
-      dragState.item === "Ferramenta improvisada" &&
-      !isSolved &&
-      isPointInsideElement(dragState.currentX, dragState.currentY, lock)
-    ) {
+    if (isToolOverLock()) {
       solvePuzzle();
       resetDrag();
       return true;
