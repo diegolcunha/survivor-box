@@ -6,15 +6,19 @@ const combineButton = document.querySelector("#combine-button");
 const combineInstruction = document.querySelector("#combine-instruction");
 const combineOkButton = document.querySelector("#combine-ok-button");
 const cursorHint = document.querySelector("#cursor-hint");
+const inventoryPanel = document.querySelector(".inventory");
 const lock = document.querySelector("#lock");
 const drawer = document.querySelector("#drawer");
 const drawerLabel = document.querySelector("#drawer-label");
 const successMessage = document.querySelector("#success-message");
 const inventory = [];
+const sceneItems = new Map();
 let selectedSlot = null;
 let isCombineMode = false;
 let combineSelection = [];
 let isSolved = false;
+let dragState = null;
+let suppressNextClick = false;
 
 function updateContext(title, text) {
   contextTitle.textContent = title;
@@ -35,6 +39,7 @@ function renderInventory() {
   slots.forEach((slot, index) => {
     const item = inventory[index];
     slot.textContent = item || "Vazio";
+    slot.dataset.item = item || "";
     slot.classList.toggle("filled", Boolean(item));
     slot.classList.toggle("combine-selected", combineSelection.includes(item));
   });
@@ -105,6 +110,152 @@ function combineSelectedItems() {
   exitCombineMode();
 }
 
+function isPointInsideElement(x, y, element) {
+  const rect = element.getBoundingClientRect();
+
+  return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+}
+
+function createDragGhost(label) {
+  const ghost = document.createElement("div");
+  ghost.className = "drag-ghost";
+  ghost.textContent = label;
+  document.body.appendChild(ghost);
+
+  return ghost;
+}
+
+function moveDragGhost(x, y) {
+  if (!dragState?.ghost) {
+    return;
+  }
+
+  dragState.ghost.style.left = `${x}px`;
+  dragState.ghost.style.top = `${y}px`;
+}
+
+function collectItem(item) {
+  if (inventory.includes(item) || inventory.length >= slots.length) {
+    return;
+  }
+
+  inventory.push(item);
+  sceneItems.get(item)?.classList.add("collected");
+  addClue(`${item} adicionado ao inventário.`);
+  renderInventory();
+}
+
+function removeInventoryItem(item) {
+  const itemIndex = inventory.indexOf(item);
+
+  if (itemIndex === -1) {
+    return;
+  }
+
+  inventory.splice(itemIndex, 1);
+  combineSelection = combineSelection.filter((selectedItem) => selectedItem !== item);
+
+  if (selectedSlot === item) {
+    clearSelection();
+  }
+
+  sceneItems.get(item)?.classList.remove("collected");
+  addClue(`${item} removido do inventário.`);
+  renderInventory();
+  updateCombineControls();
+}
+
+function resetDrag() {
+  dragState?.ghost?.remove();
+  dragState?.sourceElement?.classList.remove("drag-source");
+  inventoryPanel.classList.remove("drop-target");
+  document.body.classList.remove("dragging-item");
+  dragState = null;
+}
+
+function startPotentialDrag(event, item, source, sourceElement) {
+  if (event.button !== undefined && event.button !== 0) {
+    return;
+  }
+
+  dragState = {
+    item,
+    source,
+    sourceElement,
+    startX: event.clientX,
+    startY: event.clientY,
+    currentX: event.clientX,
+    currentY: event.clientY,
+    isDragging: false,
+    ghost: null,
+  };
+
+  sourceElement.setPointerCapture?.(event.pointerId);
+}
+
+function updateDrag(event) {
+  if (!dragState) {
+    return;
+  }
+
+  dragState.currentX = event.clientX;
+  dragState.currentY = event.clientY;
+
+  const distance = Math.hypot(event.clientX - dragState.startX, event.clientY - dragState.startY);
+
+  if (!dragState.isDragging && distance > 6) {
+    dragState.isDragging = true;
+    dragState.ghost = createDragGhost(dragState.item);
+    dragState.sourceElement.classList.add("drag-source");
+    document.body.classList.add("dragging-item");
+  }
+
+  if (!dragState.isDragging) {
+    return;
+  }
+
+  moveDragGhost(event.clientX, event.clientY);
+  inventoryPanel.classList.toggle(
+    "drop-target",
+    dragState.source === "scene" && isPointInsideElement(event.clientX, event.clientY, inventoryPanel)
+  );
+}
+
+function finishDrag() {
+  if (!dragState) {
+    return false;
+  }
+
+  const wasDragging = dragState.isDragging;
+
+  if (wasDragging) {
+    suppressNextClick = true;
+    window.setTimeout(() => {
+      suppressNextClick = false;
+    }, 120);
+  }
+
+  if (wasDragging && dragState.source === "scene") {
+    if (isPointInsideElement(dragState.currentX, dragState.currentY, inventoryPanel)) {
+      collectItem(dragState.item);
+      updateContext(dragState.item, `${dragState.item} foi guardado no inventário.`);
+    } else {
+      updateContext(dragState.item, "Arraste o item até o inventário para guardá-lo.");
+    }
+  }
+
+  if (wasDragging && dragState.source === "inventory") {
+    if (!isPointInsideElement(dragState.currentX, dragState.currentY, inventoryPanel)) {
+      removeInventoryItem(dragState.item);
+      updateContext(dragState.item, `${dragState.item} saiu do inventário.`);
+    }
+  }
+
+  resetDrag();
+
+  return wasDragging;
+}
+
 function solvePuzzle() {
   isSolved = true;
   lock.classList.add("open");
@@ -120,17 +271,24 @@ function solvePuzzle() {
 }
 
 document.querySelectorAll(".item").forEach((button) => {
+  sceneItems.set(button.dataset.item, button);
+
+  button.addEventListener("pointerdown", (event) => {
+    if (button.classList.contains("collected")) {
+      return;
+    }
+
+    startPotentialDrag(event, button.dataset.item, "scene", button);
+  });
+
   button.addEventListener("click", () => {
+    if (suppressNextClick) {
+      return;
+    }
+
     const item = button.dataset.item;
 
     updateContext(item, button.dataset.description);
-
-    if (!inventory.includes(item) && inventory.length < slots.length) {
-      inventory.push(item);
-      button.classList.add("collected");
-      addClue(`${item} adicionado ao inventário.`);
-      renderInventory();
-    }
   });
 });
 
@@ -150,7 +308,19 @@ lock.addEventListener("click", (event) => {
 });
 
 slots.forEach((slot) => {
+  slot.addEventListener("pointerdown", (event) => {
+    if (!slot.classList.contains("filled")) {
+      return;
+    }
+
+    startPotentialDrag(event, slot.dataset.item, "inventory", slot);
+  });
+
   slot.addEventListener("click", () => {
+    if (suppressNextClick) {
+      return;
+    }
+
     if (!slot.classList.contains("filled")) {
       return;
     }
@@ -198,3 +368,11 @@ document.addEventListener("mousemove", (event) => {
   cursorHint.style.left = `${event.clientX}px`;
   cursorHint.style.top = `${event.clientY}px`;
 });
+
+document.addEventListener("pointermove", updateDrag);
+
+document.addEventListener("pointerup", () => {
+  finishDrag();
+});
+
+document.addEventListener("pointercancel", resetDrag);

@@ -41,6 +41,11 @@ body.combine-mode .ok-button {
   cursor: pointer;
 }
 
+body.dragging-item {
+  cursor: grabbing;
+  user-select: none;
+}
+
 button {
   font: inherit;
 }
@@ -279,6 +284,7 @@ li {
   cursor: pointer;
   font-size: 0.78rem;
   font-weight: 800;
+  touch-action: none;
   transition:
     transform 140ms ease,
     box-shadow 140ms ease,
@@ -294,8 +300,13 @@ li {
 }
 
 .item.collected {
-  opacity: 0.28;
+  opacity: 0.18;
   pointer-events: none;
+}
+
+.inventory.drop-target {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 2px rgba(115, 199, 162, 0.3);
 }
 
 .paperclip {
@@ -485,6 +496,7 @@ li {
   color: #697280;
   cursor: pointer;
   font-weight: 800;
+  touch-action: none;
 }
 
 .slot.filled {
@@ -533,6 +545,25 @@ li {
 
 .cursor-hint.visible {
   display: block;
+}
+
+.drag-ghost {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  min-width: 96px;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid var(--accent-strong);
+  background: rgba(36, 77, 60, 0.94);
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 900;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 @media (max-height: 680px) {
