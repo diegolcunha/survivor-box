@@ -1,7 +1,7 @@
 const contextTitle = document.querySelector("#context-title");
 const contextText = document.querySelector("#context-text");
 const clueList = document.querySelector("#clue-list");
-const slots = Array.from(document.querySelectorAll(".slot"));
+const inventoryItems = document.querySelector("#inventory-items");
 const combineButton = document.querySelector("#combine-button");
 const combineInstruction = document.querySelector("#combine-instruction");
 const combineOkButton = document.querySelector("#combine-ok-button");
@@ -13,6 +13,13 @@ const drawerLabel = document.querySelector("#drawer-label");
 const successMessage = document.querySelector("#success-message");
 const inventory = [];
 const sceneItems = new Map();
+const itemIcons = {
+  Clipe: "⌁",
+  Caneta: "▰",
+  Fita: "◎",
+  Régua: "▭",
+  "Ferramenta improvisada": "⚒",
+};
 let selectedSlot = null;
 let isCombineMode = false;
 let combineSelection = [];
@@ -36,18 +43,33 @@ function addClue(text) {
 }
 
 function renderInventory() {
-  slots.forEach((slot, index) => {
-    const item = inventory[index];
-    slot.textContent = item || "Vazio";
-    slot.dataset.item = item || "";
-    slot.classList.toggle("filled", Boolean(item));
-    slot.classList.toggle("combine-selected", combineSelection.includes(item));
+  inventoryItems.innerHTML = "";
+
+  if (!inventory.length) {
+    const emptyState = document.createElement("span");
+    emptyState.className = "inventory-empty";
+    emptyState.textContent = "Arraste itens para cá.";
+    inventoryItems.appendChild(emptyState);
+    return;
+  }
+
+  inventory.forEach((item) => {
+    const token = document.createElement("button");
+    token.className = "inventory-token";
+    token.type = "button";
+    token.dataset.item = item;
+    token.innerHTML = `<span class="token-icon">${itemIcons[item] || "•"}</span><span>${item}</span>`;
+    token.classList.toggle("selected", selectedSlot === item);
+    token.classList.toggle("combine-selected", combineSelection.includes(item));
+    token.addEventListener("pointerdown", (event) => startPotentialDrag(event, item, "inventory", token));
+    token.addEventListener("click", () => handleInventoryItemClick(item, token));
+    inventoryItems.appendChild(token);
   });
 }
 
 function clearSelection() {
   selectedSlot = null;
-  slots.forEach((slot) => slot.classList.remove("selected"));
+  inventoryItems.querySelectorAll(".inventory-token").forEach((item) => item.classList.remove("selected"));
 }
 
 function updateCombineControls() {
@@ -92,8 +114,10 @@ function combineSelectedItems() {
   const selected = [...combineSelection].sort().join("+");
 
   if (selected === "Caneta+Clipe" && !inventory.includes("Ferramenta improvisada")) {
+    consumeItems(["Caneta", "Clipe"]);
+    clearSelection();
     inventory.push("Ferramenta improvisada");
-    addClue("Clipe e caneta podem virar uma ferramenta para manipular o cadeado.");
+    addClue("Clipe e caneta foram consumidos para criar uma ferramenta improvisada.");
     updateContext(
       "Ferramenta improvisada",
       "O clipe desdobrado ganha apoio no corpo da caneta. Não é elegante, mas parece funcional."
@@ -108,6 +132,17 @@ function combineSelectedItems() {
     "Nada se encaixa de um jeito útil ainda. Observe o formato e a função dos itens."
   );
   exitCombineMode();
+}
+
+function consumeItems(items) {
+  items.forEach((item) => {
+    const itemIndex = inventory.indexOf(item);
+
+    if (itemIndex !== -1) {
+      inventory.splice(itemIndex, 1);
+      sceneItems.get(item)?.classList.add("collected");
+    }
+  });
 }
 
 function isPointInsideElement(x, y, element) {
@@ -135,7 +170,7 @@ function moveDragGhost(x, y) {
 }
 
 function collectItem(item) {
-  if (inventory.includes(item) || inventory.length >= slots.length) {
+  if (inventory.includes(item)) {
     return;
   }
 
@@ -191,6 +226,22 @@ function startPotentialDrag(event, item, source, sourceElement) {
   };
 
   sourceElement.setPointerCapture?.(event.pointerId);
+}
+
+function handleInventoryItemClick(item, token) {
+  if (suppressNextClick) {
+    return;
+  }
+
+  if (isCombineMode) {
+    toggleCombineItem(item);
+    return;
+  }
+
+  inventoryItems.querySelectorAll(".inventory-token").forEach((tokenItem) => tokenItem.classList.remove("selected"));
+  token.classList.add("selected");
+  selectedSlot = item;
+  updateContext(selectedSlot, `Item selecionado: ${selectedSlot}. Clique em algo no cenário para tentar usar.`);
 }
 
 function updateDrag(event) {
@@ -305,36 +356,6 @@ lock.addEventListener("click", (event) => {
 
   updateContext("Cadeado", event.currentTarget.dataset.description);
   addClue("Selecione uma ferramenta no inventário antes de tentar o cadeado.");
-});
-
-slots.forEach((slot) => {
-  slot.addEventListener("pointerdown", (event) => {
-    if (!slot.classList.contains("filled")) {
-      return;
-    }
-
-    startPotentialDrag(event, slot.dataset.item, "inventory", slot);
-  });
-
-  slot.addEventListener("click", () => {
-    if (suppressNextClick) {
-      return;
-    }
-
-    if (!slot.classList.contains("filled")) {
-      return;
-    }
-
-    if (isCombineMode) {
-      toggleCombineItem(slot.textContent);
-      return;
-    }
-
-    slots.forEach((item) => item.classList.remove("selected"));
-    slot.classList.add("selected");
-    selectedSlot = slot.textContent;
-    updateContext(selectedSlot, `Item selecionado: ${selectedSlot}. Clique em algo no cenário para tentar usar.`);
-  });
 });
 
 combineButton.addEventListener("click", () => {

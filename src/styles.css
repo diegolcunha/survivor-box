@@ -32,7 +32,7 @@ body.combine-mode {
   cursor: crosshair;
 }
 
-body.combine-mode .slot.filled {
+body.combine-mode .inventory-token {
   cursor: crosshair;
 }
 
@@ -483,49 +483,6 @@ li {
   border-color: var(--accent);
 }
 
-.slots {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(92px, 1fr));
-  gap: 8px;
-}
-
-.slot {
-  min-height: 58px;
-  border: 1px solid var(--line);
-  background: #11151a;
-  color: #697280;
-  cursor: pointer;
-  font-weight: 800;
-  touch-action: none;
-}
-
-.slot.filled {
-  border-color: #506577;
-  background: var(--panel-strong);
-  color: var(--text);
-}
-
-.slot.selected {
-  border-color: var(--accent-strong);
-  box-shadow: inset 0 0 0 2px rgba(242, 193, 78, 0.36);
-}
-
-.slot.combine-selected {
-  border-color: var(--accent);
-  background: #1d3a2d;
-  color: var(--text);
-  box-shadow: inset 0 0 0 2px rgba(115, 199, 162, 0.36);
-}
-
-.slot.combine-selected::after {
-  content: "Selecionado";
-  display: block;
-  margin-top: 4px;
-  color: var(--accent);
-  font-size: 0.68rem;
-  font-weight: 900;
-}
-
 .cursor-hint {
   position: fixed;
   left: 0;
@@ -541,6 +498,64 @@ li {
   font-weight: 900;
   transform: translate(14px, 16px);
   white-space: nowrap;
+}
+
+.inventory-items {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.inventory-empty {
+  color: #697280;
+  font-weight: 800;
+}
+
+.inventory-token {
+  min-width: 104px;
+  min-height: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  background: #20252c;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 900;
+  touch-action: none;
+}
+
+.inventory-token.selected {
+  border-color: var(--accent-strong);
+  box-shadow: inset 0 0 0 2px rgba(242, 193, 78, 0.36);
+}
+
+.inventory-token.combine-selected {
+  border-color: var(--accent);
+  background: #1d3a2d;
+  box-shadow: inset 0 0 0 2px rgba(115, 199, 162, 0.36);
+}
+
+.inventory-token.combine-selected::after {
+  content: "Selecionado";
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.token-icon {
+  width: 26px;
+  height: 26px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid #526171;
+  background: #11151a;
+  color: var(--accent-strong);
+  font-size: 1rem;
 }
 
 .cursor-hint.visible {
