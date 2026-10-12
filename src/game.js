@@ -7,6 +7,8 @@ const combineInstruction = document.querySelector("#combine-instruction");
 const combineOkButton = document.querySelector("#combine-ok-button");
 const cursorHint = document.querySelector("#cursor-hint");
 const inventoryPanel = document.querySelector(".inventory");
+const scene = document.querySelector(".scene");
+const desk = document.querySelector(".desk");
 const lock = document.querySelector("#lock");
 const drawer = document.querySelector("#drawer");
 const drawerLabel = document.querySelector("#drawer-label");
@@ -175,7 +177,15 @@ function collectItem(item) {
   }
 
   inventory.push(item);
-  sceneItems.get(item)?.classList.add("collected");
+  const sceneItem = sceneItems.get(item);
+
+  if (sceneItem?.classList.contains("dropped-item")) {
+    sceneItem.remove();
+    sceneItems.delete(item);
+  } else {
+    sceneItem?.classList.add("collected");
+  }
+
   addClue(`${item} adicionado ao inventário.`);
   renderInventory();
 }
@@ -200,10 +210,64 @@ function removeInventoryItem(item) {
   updateCombineControls();
 }
 
+function removeItemFromInventory(item) {
+  const itemIndex = inventory.indexOf(item);
+
+  if (itemIndex === -1) {
+    return false;
+  }
+
+  inventory.splice(itemIndex, 1);
+  combineSelection = combineSelection.filter((selectedItem) => selectedItem !== item);
+
+  if (selectedSlot === item) {
+    clearSelection();
+  }
+
+  renderInventory();
+  updateCombineControls();
+  return true;
+}
+
+function dropInventoryItemOnDesk(item, x, y) {
+  if (!removeItemFromInventory(item)) {
+    return;
+  }
+
+  const deskRect = desk.getBoundingClientRect();
+  const left = Math.min(Math.max(x - deskRect.left, 34), deskRect.width - 98);
+  const top = Math.min(Math.max(y - deskRect.top, 26), deskRect.height - 54);
+  const droppedItem = document.createElement("button");
+  droppedItem.className = "hotspot dropped-item";
+  droppedItem.type = "button";
+  droppedItem.dataset.item = item;
+  droppedItem.dataset.description = `${item} está sobre a mesa. Pode ser usado, examinado ou levado de volta ao inventário.`;
+  droppedItem.style.left = `${left}px`;
+  droppedItem.style.top = `${top}px`;
+  droppedItem.innerHTML = `<span>${itemIcons[item] || "•"}</span>${item}`;
+
+  droppedItem.addEventListener("pointerdown", (event) => {
+    startPotentialDrag(event, item, "scene", droppedItem);
+  });
+  droppedItem.addEventListener("click", () => {
+    if (suppressNextClick) {
+      return;
+    }
+
+    updateContext(item, droppedItem.dataset.description);
+  });
+
+  sceneItems.set(item, droppedItem);
+  desk.appendChild(droppedItem);
+  addClue(`${item} colocado sobre a mesa.`);
+  updateContext(item, `${item} agora está sobre a mesa.`);
+}
+
 function resetDrag() {
   dragState?.ghost?.remove();
   dragState?.sourceElement?.classList.remove("drag-source");
   inventoryPanel.classList.remove("drop-target");
+  desk.classList.remove("drop-target");
   lock.classList.remove("use-target");
   document.body.classList.remove("dragging-item");
   dragState = null;
@@ -278,6 +342,12 @@ function updateDrag(event) {
       !isSolved &&
       isPointInsideElement(event.clientX, event.clientY, lock)
   );
+  desk.classList.toggle(
+    "drop-target",
+    dragState.source === "inventory" &&
+      !isPointInsideElement(event.clientX, event.clientY, inventoryPanel) &&
+      isPointInsideElement(event.clientX, event.clientY, desk)
+  );
 }
 
 function finishDrag() {
@@ -315,8 +385,12 @@ function finishDrag() {
     }
 
     if (!isPointInsideElement(dragState.currentX, dragState.currentY, inventoryPanel)) {
-      removeInventoryItem(dragState.item);
-      updateContext(dragState.item, `${dragState.item} saiu do inventário.`);
+      if (isPointInsideElement(dragState.currentX, dragState.currentY, desk)) {
+        dropInventoryItemOnDesk(dragState.item, dragState.currentX, dragState.currentY);
+      } else {
+        removeInventoryItem(dragState.item);
+        updateContext(dragState.item, `${dragState.item} saiu do inventário.`);
+      }
     }
   }
 
