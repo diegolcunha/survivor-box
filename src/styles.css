@@ -285,6 +285,10 @@ li {
 .hotspot {
   position: absolute;
   z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   border: 1px solid rgba(255, 255, 255, 0.32);
   color: #161616;
   cursor: pointer;
@@ -295,6 +299,16 @@ li {
     transform 140ms ease,
     box-shadow 140ms ease,
     border-color 140ms ease;
+}
+
+.item-icon {
+  width: 18px;
+  height: 18px;
+  image-rendering: pixelated;
+  object-fit: contain;
+  padding: 2px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.68);
 }
 
 .hotspot:hover,
@@ -368,7 +382,7 @@ li {
 }
 
 .dropped-item span {
-  color: var(--accent-strong);
+  color: var(--text);
 }
 
 .dropped-item.drag-source {
@@ -391,9 +405,16 @@ li {
   bottom: 108px;
   width: 70px;
   height: 66px;
-  padding-top: 22px;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 16px;
   border-radius: 8px;
   background: linear-gradient(180deg, #d9b34c, #8f6b21);
+}
+
+.lock .item-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .lock::before {
@@ -600,12 +621,12 @@ li {
 .token-icon {
   width: 26px;
   height: 26px;
-  display: inline-grid;
-  place-items: center;
+  flex: 0 0 auto;
+  padding: 4px;
   border: 1px solid #526171;
   background: #11151a;
-  color: var(--accent-strong);
-  font-size: 1rem;
+  image-rendering: pixelated;
+  object-fit: contain;
 }
 
 .cursor-hint.visible,

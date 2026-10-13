@@ -17,11 +17,12 @@ const successMessage = document.querySelector("#success-message");
 const inventory = [];
 const sceneItems = new Map();
 const itemIcons = {
-  Clipe: "⌁",
-  Caneta: "▰",
-  Fita: "◎",
-  Régua: "▭",
-  "Ferramenta improvisada": "⚒",
+  Clipe: "src/assets/icons/clipe.png",
+  Caneta: "src/assets/icons/caneta.png",
+  Fita: "src/assets/icons/fita.png",
+  Régua: "src/assets/icons/regua.png",
+  "Ferramenta improvisada": "src/assets/icons/ferramenta-improvisada.png",
+  Engenhoca: "src/assets/icons/engenhoca.png",
 };
 let selectedSlot = null;
 let isCombineMode = false;
@@ -48,6 +49,18 @@ function addClue(text) {
   }
 }
 
+function getItemIcon(item) {
+  if (item.startsWith("Engenhoca")) {
+    return itemIcons.Engenhoca;
+  }
+
+  return itemIcons[item] || itemIcons.Engenhoca;
+}
+
+function itemMarkup(item, iconClass) {
+  return `<img class="${iconClass}" src="${getItemIcon(item)}" alt="" draggable="false" /><span>${item}</span>`;
+}
+
 function renderInventory() {
   inventoryItems.innerHTML = "";
 
@@ -64,7 +77,7 @@ function renderInventory() {
     token.className = "inventory-token";
     token.type = "button";
     token.dataset.item = item;
-    token.innerHTML = `<span class="token-icon">${itemIcons[item] || "•"}</span><span>${item}</span>`;
+    token.innerHTML = itemMarkup(item, "token-icon");
     token.classList.toggle("selected", selectedSlot === item);
     token.classList.toggle(
       "combine-selected",
@@ -365,7 +378,7 @@ function createDeskItem(item, x, y) {
   droppedItem.dataset.description = `${item} está sobre a mesa. Pode ser usado, examinado ou levado de volta ao inventário.`;
   droppedItem.style.left = `${left}px`;
   droppedItem.style.top = `${top}px`;
-  droppedItem.innerHTML = `<span>${itemIcons[item] || "•"}</span>${item}`;
+  droppedItem.innerHTML = itemMarkup(item, "item-icon");
 
   droppedItem.addEventListener("pointerdown", (event) => {
     startPotentialDrag(event, item, "scene", droppedItem);
@@ -570,6 +583,7 @@ function solvePuzzle() {
 
 document.querySelectorAll(".item").forEach((button) => {
   sceneItems.set(button.dataset.item, button);
+  button.innerHTML = itemMarkup(button.dataset.item, "item-icon");
 
   button.addEventListener("pointerdown", (event) => {
     if (button.classList.contains("collected")) {

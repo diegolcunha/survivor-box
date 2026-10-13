@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Survivor Box - Protótipo</title>
-    <link rel="stylesheet" href="src/styles.css?v=sb116" />
+    <link rel="stylesheet" href="src/styles.css?v=sb117" />
   </head>
   <body>
     <main class="game-shell" aria-label="Tela de jogo">
@@ -18,7 +18,7 @@
             <span>Objetivo</span>
             <strong>Abrir o cadeado da gaveta</strong>
           </div>
-          <span class="version-label" aria-label="Versão do jogo">SB 1.16</span>
+          <span class="version-label" aria-label="Versão do jogo">SB 1.17</span>
         </div>
       </header>
 
@@ -90,7 +90,13 @@
               type="button"
               data-description="O cadeado prende a gaveta. A abertura é pequena, e força bruta só faria barulho."
             >
-              Cadeado
+              <img
+                class="item-icon"
+                src="src/assets/icons/cadeado.png"
+                alt=""
+                draggable="false"
+              />
+              <span>Cadeado</span>
             </button>
             <div class="drawer" id="drawer">
               <span id="drawer-label">Gaveta trancada</span>
@@ -132,6 +138,6 @@
     <div class="action-hint" id="action-hint" aria-hidden="true">
       A ferramenta parece não ter efeito.
     </div>
-    <script src="src/game.js?v=sb116"></script>
+    <script src="src/game.js?v=sb117"></script>
   </body>
 </html>
