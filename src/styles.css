@@ -314,11 +314,37 @@ li {
 
 .desk .hotspot > span {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  left: 50%;
+  top: calc(100% + 4px);
+  z-index: 5;
+  width: max-content;
+  max-width: 140px;
+  height: auto;
+  min-height: 22px;
+  display: grid;
+  place-items: center;
+  padding: 3px 7px;
+  border: 1px solid #6f6040;
+  background: rgba(45, 38, 24, 0.96);
+  color: var(--accent-strong);
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-align: center;
   overflow: hidden;
   white-space: nowrap;
-  clip-path: inset(50%);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -3px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+}
+
+.desk .hotspot:hover > span,
+.desk .hotspot:focus-visible > span {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 .hotspot:hover,
