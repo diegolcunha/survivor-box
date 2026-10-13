@@ -140,6 +140,24 @@ li {
   font-weight: 900;
 }
 
+.reset-button {
+  min-width: 74px;
+  min-height: 32px;
+  border: 1px solid #497a63;
+  background: #244d3c;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.reset-button:hover,
+.reset-button:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  background: #2d604b;
+}
+
 .objective span {
   color: var(--muted);
   font-size: 0.75rem;
@@ -189,30 +207,6 @@ li {
   position: absolute;
   inset: 0 0 46% 0;
   border-bottom: 10px solid #222832;
-}
-
-.notice-board {
-  position: absolute;
-  top: 28px;
-  right: 48px;
-  width: 190px;
-  height: 96px;
-  padding: 10px;
-  border: 6px solid #5b412f;
-  background: #c3a673;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.notice-board span {
-  display: grid;
-  place-items: center;
-  min-height: 26px;
-  background: #eee5cf;
-  color: #34302a;
-  font-size: 0.78rem;
-  font-weight: 700;
 }
 
 .desk {

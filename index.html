@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Survivor Box - Protótipo</title>
-    <link rel="stylesheet" href="src/styles.css?v=sb121" />
+    <link rel="stylesheet" href="src/styles.css?v=sb122" />
   </head>
   <body>
     <main class="game-shell" aria-label="Tela de jogo">
@@ -18,7 +18,10 @@
             <span>Objetivo</span>
             <strong>Abrir o cadeado da gaveta</strong>
           </div>
-          <span class="version-label" aria-label="Versão do jogo">SB 1.21</span>
+          <button class="reset-button" type="button" id="reset-button">
+            Reset
+          </button>
+          <span class="version-label" aria-label="Versão do jogo">SB 1.22</span>
         </div>
       </header>
 
@@ -44,11 +47,6 @@
 
         <section class="scene" aria-label="Cenário interativo">
           <div class="wall">
-            <div class="notice-board">
-              <span>Plantão</span>
-              <span>Manutenção</span>
-              <span>Arquivo</span>
-            </div>
           </div>
 
           <div class="desk" aria-label="Mesa de escritório">
@@ -138,6 +136,6 @@
     <div class="action-hint" id="action-hint" aria-hidden="true">
       A ferramenta parece não ter efeito.
     </div>
-    <script src="src/game.js?v=sb121"></script>
+    <script src="src/game.js?v=sb122"></script>
   </body>
 </html>

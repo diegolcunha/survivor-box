@@ -5,6 +5,7 @@ const inventoryItems = document.querySelector("#inventory-items");
 const combineButton = document.querySelector("#combine-button");
 const combineInstruction = document.querySelector("#combine-instruction");
 const combineOkButton = document.querySelector("#combine-ok-button");
+const resetButton = document.querySelector("#reset-button");
 const cursorHint = document.querySelector("#cursor-hint");
 const actionHint = document.querySelector("#action-hint");
 const inventoryPanel = document.querySelector(".inventory");
@@ -640,6 +641,10 @@ combineOkButton.addEventListener("click", () => {
   }
 
   combineSelectedItems();
+});
+
+resetButton.addEventListener("click", () => {
+  window.location.reload();
 });
 
 document.addEventListener("mousemove", (event) => {
