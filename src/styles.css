@@ -303,8 +303,8 @@ li {
 }
 
 .item-icon {
-  width: 42px;
-  height: 42px;
+  width: 84px;
+  height: 84px;
   image-rendering: pixelated;
   object-fit: contain;
   padding: 0;
@@ -341,40 +341,40 @@ li {
 .paperclip {
   left: 18%;
   top: 58px;
-  width: 54px;
-  height: 54px;
+  width: 96px;
+  height: 96px;
   border-radius: 8px;
 }
 
 .pen {
   left: 48%;
   top: 46px;
-  width: 54px;
-  height: 54px;
+  width: 96px;
+  height: 96px;
   border-radius: 8px;
 }
 
 .tape {
   right: 18%;
   top: 92px;
-  width: 54px;
-  height: 54px;
+  width: 96px;
+  height: 96px;
   border-radius: 8px;
 }
 
 .ruler {
   left: 24%;
   top: 142px;
-  width: 54px;
-  height: 54px;
+  width: 96px;
+  height: 96px;
   border-radius: 8px;
 }
 
 .dropped-item {
-  width: 54px;
-  height: 54px;
-  min-width: 54px;
-  min-height: 54px;
+  width: 96px;
+  height: 96px;
+  min-width: 96px;
+  min-height: 96px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -403,33 +403,25 @@ li {
 }
 
 .lock {
-  left: calc(50% - 38px);
-  bottom: 108px;
-  width: 70px;
-  height: 66px;
+  left: calc(50% - 48px);
+  bottom: 104px;
+  width: 96px;
+  height: 96px;
   flex-direction: column;
   gap: 2px;
-  padding-top: 16px;
-  border-radius: 8px;
-  background: linear-gradient(180deg, #d9b34c, #8f6b21);
-  border: 1px solid rgba(255, 255, 255, 0.32);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
 }
 
 .lock .item-icon {
-  width: 26px;
-  height: 26px;
+  width: 84px;
+  height: 84px;
 }
 
 .lock::before {
-  content: "";
-  position: absolute;
-  left: 17px;
-  top: -30px;
-  width: 36px;
-  height: 38px;
-  border: 7px solid #c7cdd4;
-  border-bottom: 0;
-  border-radius: 28px 28px 0 0;
+  content: none;
 }
 
 .lock.open {
@@ -440,8 +432,7 @@ li {
 }
 
 .lock.open::before {
-  transform: translateX(16px) rotate(18deg);
-  transform-origin: bottom left;
+  content: none;
 }
 
 .lock.use-target {
@@ -646,8 +637,8 @@ li {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 54px;
-  height: 54px;
+  width: 96px;
+  height: 96px;
   padding: 0;
   border: 0;
   background: transparent;

@@ -369,8 +369,8 @@ function dropInventoryItemOnDesk(item, x, y) {
 
 function createDeskItem(item, x, y) {
   const deskRect = desk.getBoundingClientRect();
-  const left = Math.min(Math.max(x - deskRect.left, 34), deskRect.width - 70);
-  const top = Math.min(Math.max(y - deskRect.top, 26), deskRect.height - 54);
+  const left = Math.min(Math.max(x - deskRect.left, 34), deskRect.width - 112);
+  const top = Math.min(Math.max(y - deskRect.top, 26), deskRect.height - 100);
   const droppedItem = document.createElement("button");
   droppedItem.className = "hotspot dropped-item";
   droppedItem.type = "button";
