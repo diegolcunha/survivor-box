@@ -1,0 +1,14 @@
+.with-game-menu { padding-left: 180px; min-width: 0; overflow: auto; }
+.game-menu { position: fixed; inset: 0 auto 0 0; width: 180px; padding: 26px 12px; background: #12161c; border-right: 1px solid #303743; display: flex; flex-direction: column; gap: 10px; z-index: 40; font-family: system-ui,sans-serif; }
+.game-menu strong { font-size: 23px; padding: 0 10px; color: #f4f1e9; }
+.game-menu small { color: #7b8797; letter-spacing: 2px; padding: 10px; font-size: 10px; }
+.game-menu a { display: flex; gap: 10px; align-items: center; color: #aeb9c7; text-decoration: none; padding: 14px 10px; border: 1px solid transparent; border-radius: 5px; font-size: 13px; line-height: 1.5; }
+.game-menu a span { color: #73c7a2; font-size: 11px; }
+.game-menu a:hover,.game-menu a:focus-visible { background: #232c36; color: white; }
+.game-menu a[aria-current] { background: #20382f; border-color: #395e4e; color: #e1f6eb; }
+.game-menu p { margin-top: auto; padding: 10px; font-size: 11px; color: #7b8797; }
+.with-game-menu .play-layout { grid-template-columns: 250px minmax(500px,1fr); }
+.with-game-menu .context-panel { overflow: auto; }
+.with-game-menu .inventory-items { overflow-x: auto; }
+@media(max-width:1100px) { .with-game-menu .play-layout { grid-template-columns: 210px minmax(410px,1fr); } .with-game-menu .objective { min-width: 0; } .with-game-menu .top-status { gap: 6px; } }
+@media(max-width:850px) { .with-game-menu { padding-left: 0; } .game-menu { position: static; width: auto; flex-direction: row; flex-wrap: wrap; padding: 10px; align-items: center; } .game-menu small,.game-menu p { display:none; } .game-menu a { padding:8px; } .with-game-menu .game-shell { height:auto; min-height:calc(100vh - 80px); grid-template-rows:auto auto auto; } .with-game-menu .play-layout { grid-template-columns:1fr; } .with-game-menu .context-panel { max-height:210px; } .with-game-menu .scene { height:450px; } .with-game-menu .top-bar,.with-game-menu .inventory-head { flex-wrap:wrap; gap:14px; } .with-game-menu .combine-controls { flex-wrap:wrap; } }
