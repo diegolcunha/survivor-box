@@ -10,6 +10,7 @@
     if (a.pathname === location.pathname) a.setAttribute('aria-current', 'page');
     nav.append(a);
   });
+  const sonar = document.createElement('a'); sonar.href = new URL('sonar/index.html', root); sonar.innerHTML = '<span>05</span>Sonar — Comando solitário'; if (sonar.pathname === location.pathname) sonar.setAttribute('aria-current', 'page'); nav.append(sonar);
   const note = document.createElement('p'); note.textContent = 'Protótipos locais'; nav.append(note);
   document.body.prepend(nav); document.body.classList.add('with-game-menu');
 })();
